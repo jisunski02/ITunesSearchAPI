@@ -1,6 +1,8 @@
 package com.kumuph.ituneslist.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.kumuph.ituneslist.DataModel.AlbumDataModel;
-import com.kumuph.ituneslist.DataModel.ArtistDataModel;
 import com.kumuph.ituneslist.R;
 
 import java.util.ArrayList;
@@ -26,8 +27,6 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
     //instantiating AlbumDataModel to List
     private List<AlbumDataModel> albumDataModels = new ArrayList<>();
     private Context context;
-
-    private String albumLinkURL = "";
 
     //Initializing drawable images on array
     int[] imagePlaceHolderArray = new int[]{R.drawable.imovies_image_placeholder1, R.drawable.imovies_image_placeholder2,R.drawable.imovies_image_placeholder3,
@@ -58,8 +57,15 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
         Random random = new Random();
         int randomNumber = random.nextInt(imagePlaceHolderArray.length);
 
+        // this is based on image sizes available on itunes
+        // pass this string value to Glide for better image quality
+        String artWorkUrl600 = albumDataModel.getArtWorkUrl100();
+        artWorkUrl600 = artWorkUrl600.substring(0, artWorkUrl600.length() - 13);
+        String convertedArtWorkURL = artWorkUrl600+"600x600bb.jpg";
+
         //Setting value on every item on the recyclerview position
-        Glide.with(holder.imageViewAlbum).load(albumDataModel.getArtWorkUrl100())
+        //image set to 600x600 resolution
+        Glide.with(holder.imageViewAlbum).load(convertedArtWorkURL)
                 //.thumbnail(0.5f)
                 .apply(new RequestOptions()
                         .error(imagePlaceHolderArray[randomNumber]))
@@ -68,13 +74,14 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
 
         holder.textViewAlbumName.setText(albumDataModel.getCollectionName());
 
-
-
         //Visit Artist ITunes Album page on button click
         holder.buttonViewAlbum.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                albumLinkURL = albumDataModel.getCollectionViewUrl();
+                String url = albumDataModel.getCollectionViewUrl();
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+                view.getContext().startActivity(intent);
             }
         });
     }

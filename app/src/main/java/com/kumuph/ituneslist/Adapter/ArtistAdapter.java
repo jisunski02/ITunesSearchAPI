@@ -1,6 +1,8 @@
 package com.kumuph.ituneslist.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +25,7 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ViewHolder
     private List<ArtistDataModel> artistDataModels = new ArrayList<>();
     private Context context;
 
-    private String artistLinkURL = "";
+
 
     //Instantiating parameters context and List on to ArtistAdapter
     public ArtistAdapter(Context context, List<ArtistDataModel> artistDataModel){
@@ -50,12 +52,16 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ViewHolder
         holder.textViewArtistName.setText(artistDataModel.getArtistName());
         holder.textViewArtistType.setText(artistDataModel.getArtistType());
 
-        artistLinkURL = artistDataModel.getArtistLinkUrl();
+
 
         //Visit Artist ITunes Profile page on button click
         holder.buttonVisitArtist.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String url = artistDataModel.getArtistLinkUrl();
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+                view.getContext().startActivity(intent);
 
             }
         });

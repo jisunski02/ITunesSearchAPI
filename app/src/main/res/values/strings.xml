@@ -1,5 +1,6 @@
 <resources>
-    //Global string resource
+
+    <!-- String concatenation value here -->
     <string name="app_name">ITunesList</string>
     <string name="collectionPrice">"$ "</string>
     <string name="recentvisit">Recently Visited: </string>
@@ -8,4 +9,7 @@
     <string name="artist_name">Artist Name</string>
     <string name="artist_genre">Artist Genre</string>
     <string name="album_name">Album Name</string>
+    <string name="no_album_found">No Album Found</string>
+    <string name="no_artist_found">No Artist Found</string>
+    <string name="no_internet">You are not connected to the Internet. Make sure Wi-Fi is on, Mobile Data is on, Airplane Mode is off and try again.</string>
 </resources>

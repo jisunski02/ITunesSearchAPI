@@ -1,10 +1,13 @@
 package com.kumuph.ituneslist;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,6 +18,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.agrawalsuneet.dotsloader.loaders.LazyLoader;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -31,6 +35,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class SearchedTermByArtistAlbumActivity extends AppCompatActivity {
@@ -49,6 +54,18 @@ public class SearchedTermByArtistAlbumActivity extends AppCompatActivity {
     private RecyclerView.Adapter albumAdapter;
     private List<AlbumDataModel> albumDataModels;
     private LinearLayoutManager albumLinearLayoutManager;
+
+    SharedPreferences sharedPreferences;
+    //Key value pair storing date in Sharedpreferences
+    private static String SHARED_PREF_DATE = "datepreferences";
+    private static String KEY_DATE_RECENTLY_VISITED = "date";
+
+    // Lazyloader
+    LazyLoader lazyLoader;
+    private TextView textViewNoArtist;
+    private TextView textViewNoAlbum;
+    private LinearLayout linearLayoutNoInternet;
+    private LinearLayout linearLayoutMain;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +91,19 @@ public class SearchedTermByArtistAlbumActivity extends AppCompatActivity {
             }
         });
 
+        //Initializing Widgets for loading functionalities and Recylerview item count
+        //initializing loading widget
+        lazyLoader = findViewById(R.id.lazyloader);
+        lazyLoader.setAnimDuration(500);
+        lazyLoader.setFirstDelayDuration(100);
+        lazyLoader.setSecondDelayDuration(200);
+        lazyLoader.setInterpolator(new LinearInterpolator());
+
+        textViewNoArtist = findViewById(R.id.textViewNoArtist);
+        textViewNoAlbum = findViewById(R.id.textViewNoAlbum);
+        linearLayoutMain = findViewById(R.id.linearLayoutMain);
+        linearLayoutNoInternet = findViewById(R.id.linearLayoutNoInternet);
+
         //Initializing Recyclerview, List, Model and LayoutManager for ITunes Artist Search API
         recyclerViewArtist = findViewById(R.id.recyclerViewArtistList);
         recyclerViewArtist.setHasFixedSize(true);
@@ -96,7 +126,9 @@ public class SearchedTermByArtistAlbumActivity extends AppCompatActivity {
             fetchAllAlbum();
         } else {
 
-
+                linearLayoutNoInternet.setVisibility(View.VISIBLE);
+                linearLayoutMain.setVisibility(View.GONE);
+                lazyLoader.setVisibility(View.GONE);
         }
 
     }
@@ -111,7 +143,8 @@ public class SearchedTermByArtistAlbumActivity extends AppCompatActivity {
             public void onResponse(String response) {
                     //dismiss dialog here
                 try {
-
+                    lazyLoader.setVisibility(View.GONE);
+                    linearLayoutMain.setVisibility(View.VISIBLE);
                     JSONObject jsonObject = new JSONObject(response);
                     JSONArray jsonArray = jsonObject.getJSONArray("results");
 
@@ -129,6 +162,10 @@ public class SearchedTermByArtistAlbumActivity extends AppCompatActivity {
                     artistAdapter = new ArtistAdapter(SearchedTermByArtistAlbumActivity.this, artistDataModels);
                     recyclerViewArtist.setAdapter(artistAdapter);
 
+                    // Get item count for Artist adapter, if count equals 0 then set textViewNoAlbum visible
+                    if(artistAdapter.getItemCount() == 0){
+                        textViewNoArtist.setVisibility(View.VISIBLE);
+                    }
 
                 } catch (JSONException jsonException) {
                     jsonException.printStackTrace();
@@ -150,14 +187,16 @@ public class SearchedTermByArtistAlbumActivity extends AppCompatActivity {
     private void fetchAllAlbum(){
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
-        //pass the searchTermValue to the URL search API to return value
+
+        // Pass the searchTermValue to the URL search API to return value
         String url="https://itunes.apple.com/search?term="+ MainActivity.searchTermValue +"&entity=album&attribute=albumTerm&country=ph&limit=20";
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 //dismiss dialog here
                 try {
-
+                    lazyLoader.setVisibility(View.GONE);
+                    linearLayoutMain.setVisibility(View.VISIBLE);
                     JSONObject jsonObject = new JSONObject(response);
                     JSONArray jsonArray = jsonObject.getJSONArray("results");
 
@@ -175,6 +214,11 @@ public class SearchedTermByArtistAlbumActivity extends AppCompatActivity {
                     albumAdapter = new AlbumAdapter(SearchedTermByArtistAlbumActivity.this, albumDataModels);
                     recyclerViewAlbum.setAdapter(albumAdapter);
 
+                    // Get item count for Album adapter, if count equals 0 then set textViewNoAlbum visible
+                    if(albumAdapter.getItemCount() == 0){
+                        textViewNoAlbum.setVisibility(View.VISIBLE);
+                    }
+
 
                 } catch (JSONException jsonException) {
                     jsonException.printStackTrace();
@@ -191,5 +235,25 @@ public class SearchedTermByArtistAlbumActivity extends AppCompatActivity {
         }){
         };
         requestQueue.add(stringRequest);
+    }
+/*
+    //TODO: Using Activity Lifecycle Callbacks on saving Date
+        This is where we save the last screen, if the user presses the home button or off the screen, the user either
+        wishes to resume or terminate the app, if the app is resumed, it will logged the date, if the app is terminated (onPause>onStop),
+        particularly swiped up or close button on Home Menu, the date will be logged.
+   */
+
+    @Override
+    protected void onStop(){
+        super.onStop();
+        //Toast.makeText(MainActivity.this, "On Stop", Toast.LENGTH_SHORT).show();
+
+        sharedPreferences = getSharedPreferences(SHARED_PREF_DATE, MODE_PRIVATE);
+        //getting current date to be saved on sharedpref in method onDestroy
+        String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(KEY_DATE_RECENTLY_VISITED, currentDateTimeString);
+        editor.apply();
     }
 }

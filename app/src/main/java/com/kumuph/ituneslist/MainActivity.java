@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -34,6 +35,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.kumuph.ituneslist.Adapter.ITunesListAdapter;
+import com.kumuph.ituneslist.DataModel.ArtistDataModel;
 import com.kumuph.ituneslist.DataModel.ITunesListDataModel;
 import com.kumuph.ituneslist.Room.DatabaseClient;
 import com.kumuph.ituneslist.Room.ITunesListRoom;
@@ -55,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private SearchView searchViewAllArtistAlbum;
 
     //URL from ITunes Search API
-    private String ITUNES_SEARCHAPI_URL = "https://itunes.apple.com/search?term=star&country=au&media=movie&all";
+    private String ITUNES_SEARCHAPI_URL = "https://itunes.apple.com/search?term=star&amp;country=au&amp;media=movie&amp;all";
 
     //Instantiating this List from ITunesListDataModel for ITunesListRoom, Recyclerview
     List<ITunesListDataModel> iTunesListRoom;
@@ -168,7 +170,8 @@ public class MainActivity extends AppCompatActivity {
         });
         thread.start();
     }
-    //This function simply loads the data available from the server, referencing into particular ITunes search API >> (ITUNES_SEARCHAPI_URL)
+    // TODO: This function simply loads the data available from the server, referencing into particular
+    //  ITunes search API URL >> (ITUNES_SEARCHAPI_URL)
     private void fetchfromServer(){
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -217,6 +220,7 @@ public class MainActivity extends AppCompatActivity {
         requestQueue.add(stringRequest);
     }
 
+
     //Creating task, this is where you insert List values to Room based on parameters for offline usage
     private void saveTask() {
 
@@ -255,13 +259,16 @@ public class MainActivity extends AppCompatActivity {
         saveTask.execute();
     }
 
-    /* onDestroy method determines the saving point where the user activity must be detected.
-        By the time the user presses the back button(onBackPressed), the date will be logged as Recently Visited.
-        This is the only part where you must implement the saving of date, otherwise you have another activity,
+    /*
+
+     //TODO: Using Activity Lifecycle Callbacks on saving Date
+        Main Acitivity onDestroy method determines the saving point where the user activity must be detected on exiting the app.
+        By the time the user presses the back button(onBackPressed), the date will be logged.
+        This is the only part where you must implement the saving of date onDestroy, otherwise you have another activity,
         because destroying the other activities doesn't mean the user will exit the app.
      */
     @Override
-    public void onDestroy(){
+    protected void onDestroy(){
         super.onDestroy();
 
         sharedPreferences = getSharedPreferences(SHARED_PREF_DATE, MODE_PRIVATE);
@@ -274,17 +281,27 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    /*
-        This is where we save the last screen, if the user presses the home button(onPause), the user either
-        wishes to resume or terminate the app, if the app is resumed, it will logged the date
-        by the time the user presses home button, if the app is terminated onPause, (particularly swiped up or
-        close button on Home Menu), the logged date would be the last time the user presses the home button.
-    */
-    @Override
-    public void onPause(){
-        super.onPause();
 
-        sharedPreferences = getSharedPreferences(SHARED_PREF_DATE, MODE_PRIVATE);
+    @Override
+    protected void onPause(){
+        super.onPause();
+        //Toast.makeText(MainActivity.this, "On Pause", Toast.LENGTH_SHORT).show();
+
+    }
+
+    /*
+   //TODO: Using Activity Lifecycle Callbacks on saving Date
+       This is where we save the last screen, if the user presses the home button or off the screen, the user either
+       wishes to resume or terminate the app, if the app is resumed, it will logged the date, if the app is terminated (onPause>onStop),
+        particularly swiped up or close button on Home Menu, the date will be logged.
+   */
+
+    @Override
+    protected void onStop(){
+        super.onStop();
+        //Toast.makeText(MainActivity.this, "On Stop", Toast.LENGTH_SHORT).show();
+
+         sharedPreferences = getSharedPreferences(SHARED_PREF_DATE, MODE_PRIVATE);
         //getting current date to be saved on sharedpref in method onDestroy
         String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
 
@@ -292,5 +309,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putString(KEY_DATE_RECENTLY_VISITED, currentDateTimeString);
         editor.apply();
     }
+
+
 
 }

@@ -86,6 +86,7 @@ public class ITunesListAdapter extends RecyclerView.Adapter<ITunesListAdapter.Vi
                 @Override
                 public void onClick(View view) {
                     try {
+                        //TODO: use bottonsheetdialog here
                         dialogDetailedView = new Dialog(context);
                         dialogDetailedView.requestWindowFeature(Window.FEATURE_NO_TITLE);//...........
                         dialogDetailedView.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));

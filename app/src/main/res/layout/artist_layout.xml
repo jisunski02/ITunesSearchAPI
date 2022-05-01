@@ -30,6 +30,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:gravity="center"
+                android:ellipsize="end"
+                android:maxLines="2"
                 android:fontFamily="@font/montserrat_bold"
                 android:layout_marginTop="30dp"
                 android:layout_marginStart="10dp"
