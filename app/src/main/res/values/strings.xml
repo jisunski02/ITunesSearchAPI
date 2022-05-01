@@ -1,0 +1,11 @@
+<resources>
+    //Global string resource
+    <string name="app_name">ITunesList</string>
+    <string name="collectionPrice">"$ "</string>
+    <string name="recentvisit">Recently Visited: </string>
+    <string name="artist">Artist</string>
+    <string name="album">Album</string>
+    <string name="artist_name">Artist Name</string>
+    <string name="artist_genre">Artist Genre</string>
+    <string name="album_name">Album Name</string>
+</resources>
