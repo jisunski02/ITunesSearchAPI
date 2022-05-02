@@ -10,12 +10,14 @@ Here's the link URL: https://itunes.apple.com/search?term=star&amp;country=au&am
 
 Here are the dependencies that i used in developing the app:
 
-  //Third-Party Networking Library
-    implementation 'com.android.volley:volley:1.2.1' >> for handling network between the app and the server, parsing of URL and extracting its JSON values
-    implementation 'com.google.code.gson:gson:2.8.7' >> takes big part here, use for serializing of objects
+ 
     
     //Image URL parser/loader Library
     implementation 'com.github.bumptech.glide:glide:4.12.0' >> this is for handling images
+    
+     //Third-Party Networking Library
+    implementation 'com.android.volley:volley:1.2.1' >> for handling network between the app and the server, parsing of URL and extracting its JSON values
+    implementation 'com.google.code.gson:gson:2.8.7' >> takes big part here, use for serializing of objects
 
     //Room Database
     implementation "android.arch.persistence.room:runtime:$room_version" >> this is for offline storage of certain data, coming from the server
