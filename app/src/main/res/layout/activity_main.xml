@@ -26,6 +26,7 @@
         android:layout_marginStart="5dp"
         android:text="@string/recentvisit"
         android:fontFamily="@font/montserrat_medium"
+        android:textColor="@color/black"
         android:textSize="13sp"
         app:layout_constraintTop_toTopOf="@+id/tvRecentlyVisited"
         app:layout_constraintStart_toEndOf="@+id/tvRecentlyVisited" />
@@ -42,14 +43,23 @@
         app:layout_constraintBottom_toBottomOf="parent"/>
 
 
-    <ProgressBar
-        android:id="@+id/progressBar"
+    <com.agrawalsuneet.dotsloader.loaders.LazyLoader
+        android:id="@+id/lazyloader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:lazyloader_animDur="800"
+        app:lazyloader_dotsDist="7dp"
+        app:lazyloader_dotsRadius="6dp"
+        app:lazyloader_firstDelayDur="150"
+        app:lazyloader_interpolator="@android:anim/decelerate_interpolator"
+        app:lazyloader_secondDelayDur="300"
+        app:lazyloader_firstDotColor="@color/orange"
+        app:lazyloader_secondDotColor="@color/orange"
+        app:lazyloader_thirdDotColor="@color/orange" />
 
     <include
         android:id="@+id/application_toolbar"

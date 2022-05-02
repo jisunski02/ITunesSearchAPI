@@ -21,10 +21,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.agrawalsuneet.dotsloader.loaders.LazyLoader;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -64,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerviewITunesList;
     private List<ITunesListDataModel> iTunesListDataModel;
     private ITunesListAdapter iTunesListAdapter;
-    private ProgressBar progressBar;
 
     SharedPreferences sharedPreferences;
     //Key value pair storing date in Sharedpreferences
@@ -73,6 +74,9 @@ public class MainActivity extends AppCompatActivity {
     private TextView textviewvRecentlyVisited;
 
     public static String searchTermValue = "";
+
+    // Lazyloader
+    LazyLoader lazyLoader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,12 +94,24 @@ public class MainActivity extends AppCompatActivity {
         String keyDate = sharedPreferences.getString(KEY_DATE_RECENTLY_VISITED, null);
 
         //Initializing Widgets for Main Activity
-        progressBar = findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.GONE);
+        lazyLoader = findViewById(R.id.lazyloader);
+        lazyLoader.setAnimDuration(500);
+        lazyLoader.setFirstDelayDuration(100);
+        lazyLoader.setSecondDelayDuration(200);
+        lazyLoader.setInterpolator(new LinearInterpolator());
 
         textviewvRecentlyVisited = findViewById(R.id.textviewvRecentlyVisited);
+
         //Passing the key value to Textview
-        textviewvRecentlyVisited.setText(keyDate);
+        if(keyDate != null){
+
+            textviewvRecentlyVisited.setText(keyDate);
+        }
+        else {
+            //this would be the value if the user just first open the app
+            textviewvRecentlyVisited.setText("First Visit Today");
+        }
+
 
         //Initializing Recyclerview, List, Model and LayoutManager
         recyclerviewITunesList = findViewById(R.id.recyclerviewITunesList);
@@ -126,12 +142,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //Checking network connection if online or offline, if network is active it will fetch from server, if not fetch from Local/Room Database
-        ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+
         if (activeNetwork != null && activeNetwork.isConnectedOrConnecting() && iTunesListDataModel != null) {
             fetchfromServer();
-        } else {
+        }
 
+        else {
 
             fetchfromRoom();
         }
@@ -145,7 +163,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
 
-
                 List<ITunesListRoom> ituneslist = DatabaseClient.getInstance(MainActivity.this).getAppDatabase().iTunesListDao().getAll();
                 iTunesListDataModel.clear();
                 for (ITunesListRoom itunes: ituneslist) {
@@ -158,6 +175,10 @@ public class MainActivity extends AppCompatActivity {
                     );
 
                     iTunesListDataModel.add(iTunesList);
+
+                    if(iTunesListAdapter.getItemCount() > 0){
+                        lazyLoader.setVisibility(View.GONE);
+                    }
                 }
                 // refreshing recycler view
                 runOnUiThread(new Runnable() {
@@ -198,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
                         // Refreshing recycler view
                         iTunesListAdapter.notifyDataSetChanged();
 
-                        progressBar.setVisibility(View.GONE);
+                        lazyLoader.setVisibility(View.GONE);
 
                         saveTask();
 
@@ -309,7 +330,6 @@ public class MainActivity extends AppCompatActivity {
         editor.putString(KEY_DATE_RECENTLY_VISITED, currentDateTimeString);
         editor.apply();
     }
-
 
 
 }

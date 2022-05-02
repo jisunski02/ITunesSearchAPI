@@ -1,11 +1,14 @@
 package com.kumuph.ituneslist.Adapter;
 
+import static android.graphics.text.LineBreaker.JUSTIFICATION_MODE_INTER_WORD;
+
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -91,13 +94,24 @@ public class ITunesListAdapter extends RecyclerView.Adapter<ITunesListAdapter.Vi
                         dialogDetailedView.requestWindowFeature(Window.FEATURE_NO_TITLE);//...........
                         dialogDetailedView.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                         dialogDetailedView.setContentView(R.layout.dialog_viewdetails);
-                        dialogDetailedView.setCancelable(true);
+                        dialogDetailedView.setCancelable(false);
                         dialogDetailedView.show();
 
                         ImageView imageViewDetail = dialogDetailedView.findViewById(R.id.imageViewDetail);
                         TextView trackName = dialogDetailedView.findViewById(R.id.textViewTrackNameDetail);
                         TextView primarygenre = dialogDetailedView.findViewById(R.id.textViewPrimaryGenreDetail);
                         TextView collectionprice = dialogDetailedView.findViewById(R.id.tvCollectionPriceDetail);
+                        ImageView imageViewClose = dialogDetailedView.findViewById(R.id.imageViewClose);
+
+
+                        //Dialog detailview is closed on click
+                        imageViewClose.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                dialogDetailedView.dismiss();
+                            }
+                        });
+
                         TextView longdescription = dialogDetailedView.findViewById(R.id.textViewLongDescriptionDetail);
 
                         Glide.with(imageViewDetail).load(iTunesListDataModel.getArtWorkUrl100())
@@ -114,6 +128,7 @@ public class ITunesListAdapter extends RecyclerView.Adapter<ITunesListAdapter.Vi
                             longdescription.setText("No Description Available");
                         } else {
                             longdescription.setText(iTunesListDataModel.getLongDescription());
+
                         }
                     }
 
